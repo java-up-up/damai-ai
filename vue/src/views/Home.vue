@@ -48,6 +48,20 @@ const aiApps = ref([
     description: '帮你解决大麦规则相关的问题',
     route: '/damai-rag',
     icon: DamaiAssistantIcon
+  },
+  {
+    id: 3,
+    title: '上传私人知识库',
+    description: '上传你的文件，创建属于你的知识库',
+    route: '/upload-kb',
+    icon: DocumentTextIcon
+  },
+  {
+    id: 4,
+    title: '私人知识库对话',
+    description: '基于你的知识库进行AI问答',
+    route: '/private-rag',
+    icon: DamaiAssistantIcon
   }
 ])
 </script>

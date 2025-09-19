@@ -19,31 +19,19 @@ import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 
 import static org.javaup.ai.constants.DaMaiConstant.CHAT_TITLE_ADVISOR_ORDER;
 import static org.javaup.ai.constants.DaMaiConstant.CHAT_TYPE_HISTORY_ADVISOR_ORDER;
 import static org.javaup.ai.constants.DaMaiConstant.MESSAGE_CHAT_MEMORY_ADVISOR_ORDER;
 
 /**
- * @program: 大麦-ai智能服务项目。 添加 阿星不是程序员 微信，添加时备注 ai 来获取项目的完整资料 
+ * @program: 大麦-ai智能服务项目。 添加 阿星不是程序员 微信，添加时备注 ai 来获取项目的完整资料
  * @description: 自动装配类
  * @author: 阿星不是程序员
  **/
-public class DaMaiAiAutoConfiguration {
+public class DaMaiPrivateRagAiAutoConfiguration {
 
 
-    @Bean
-    @Primary
-    public ChatClient chatClient(DeepSeekChatModel model) {
-        return ChatClient
-                .builder(model)
-                .defaultSystem("你是一位智能助手，你的特点是温柔、善良，你的名字叫智能小艾，要结合你的特点积极的回答用户的问题。")
-                .defaultAdvisors(
-                        new SimpleLoggerAdvisor()
-                )
-                .build();
-    }
 
     @Bean
     public ChatMemory chatMemory(ChatMemoryRepository chatMemoryRepository) {
@@ -54,23 +42,23 @@ public class DaMaiAiAutoConfiguration {
     }
 
     @Bean
-    public ChatClient assistantChatClient(DeepSeekChatModel model, ChatMemory chatMemory, AiProgram aiProgram,
-                                          ChatTypeHistoryService chatTypeHistoryService,@Qualifier("titleChatClient")ChatClient titleChatClient) {
+    public ChatClient vipRagChatClient(DeepSeekChatModel model, ChatMemory chatMemory, AiProgram aiProgram,
+                                    ChatTypeHistoryService chatTypeHistoryService, @Qualifier("titleChatClient")ChatClient titleChatClient) {
         return ChatClient
                 .builder(model)
-                .defaultSystem(DaMaiConstant.DA_MAI_SYSTEM_PROMPT)
+                .defaultSystem(DaMaiConstant.PRIVATE_RAG_PROMPT)
                 .defaultAdvisors(
                         new SimpleLoggerAdvisor(),
-                        ChatTypeHistoryAdvisor.builder(chatTypeHistoryService).type(ChatType.ASSISTANT.getCode())
+                        ChatTypeHistoryAdvisor.builder(chatTypeHistoryService).type(ChatType.PRIVATERAG.getCode())
                                 .order(CHAT_TYPE_HISTORY_ADVISOR_ORDER).build(),
-                        ChatTypeTitleAdvisor.builder(chatTypeHistoryService).type(ChatType.ASSISTANT.getCode())
+                        ChatTypeTitleAdvisor.builder(chatTypeHistoryService).type(ChatType.PRIVATERAG.getCode())
                                 .chatClient(titleChatClient).chatMemory(chatMemory).order(CHAT_TITLE_ADVISOR_ORDER).build(),
                         MessageChatMemoryAdvisor.builder(chatMemory).order(MESSAGE_CHAT_MEMORY_ADVISOR_ORDER).build()
                 )
                 .defaultTools(aiProgram)
                 .build();
     }
-    
+
     @Bean
     public ChatClient titleChatClient(DeepSeekChatModel model) {
         return ChatClient
@@ -80,7 +68,7 @@ public class DaMaiAiAutoConfiguration {
                 )
                 .build();
     }
-    
+
     @Bean
     public VectorStore vectorStore(OpenAiEmbeddingModel embeddingModel) {
         return SimpleVectorStore.builder(embeddingModel).build();

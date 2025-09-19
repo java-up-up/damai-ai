@@ -12,6 +12,7 @@ public enum ChatType {
     CHAT(1,"普通会话"),
     ASSISTANT(2,"助理智能客户"),
     MARKDOWN(3,"Markdown助手"),
+    PRIVATERAG(4," 私人知识库rag 助手"),
     ;
 
     private final Integer code;

@@ -18,6 +18,16 @@ const router = createRouter({
       path: '/damai-rag',
       name: 'SmartRag',
       component: () => import('../views/SmartRag.vue')
+    },
+    {
+      path: '/upload-kb',
+      name: 'UploadKb',
+      component: () => import('@/views/UploadKb.vue')
+    },
+    {
+      path: '/private-rag',
+      name: 'PrivateRag',
+      component: () => import('@/views/PrivateRag.vue')
     }
   ],
 })
