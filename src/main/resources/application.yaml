@@ -1,5 +1,5 @@
 server:
-  port: 6084
+  port: 6089
   servlet:
     encoding:
       charset: UTF-8
@@ -38,7 +38,7 @@ spring:
         model: deepseek-r1:7b
     openai:
       base-url: https://dashscope.aliyuncs.com/compatible-mode
-      api-key: openai的key
+      api-key: sk-941bc9ef9cc84773ba1088e986a19d69
       chat:
         options:
           model: qwen-max-latest
@@ -48,7 +48,7 @@ spring:
           dimensions: 1024
     deepseek:
       base-url: https://api.deepseek.com
-      api-key: deepseek的key
+      api-key: sk-43ea36786a194ce6a8ae1ce0ee4ca9b2
       chat:
         options:
           model: deepseek-chat
@@ -56,15 +56,15 @@ easy-es:
   #默认为true,若为false则认为不启用本框架
   enable: true
   # es的连接地址,必须含端口
-  address : 127.0.0.1:9200
+  address : 62.234.31.217:9200
   #账号,若无 则可省略此行配置
   username: elastic
   #密码,若无 则可省略此行配置
-  password: elastic
+  password: 123qwe
   global-config:
     db-config:
       #索引前缀
-      index-prefix: damai-
+      index-prefix: mytest-
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   global-config:

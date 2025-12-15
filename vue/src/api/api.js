@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:6084'
+const BASE_URL = 'http://localhost:6089'
 const TIMEOUT = 30000 // 30秒超时
 
 // 统一的错误处理
