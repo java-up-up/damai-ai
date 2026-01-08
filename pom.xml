@@ -109,7 +109,7 @@
         <!-- MCP Client - 用于调用外部MCP服务 -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-mcp-client-spring-boot-starter</artifactId>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
