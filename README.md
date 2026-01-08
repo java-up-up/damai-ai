@@ -22,7 +22,7 @@ AI 目前来说可以是非常非常的火热！但凡是个程序员都不好�
 
 有时用户想了解相关的购票和退票规则，如果自己在系统中搜索的话，需要一点点仔细的查询，这样会花费很长的时间。通过 AI 模型，用户可以直接询问想要了解的规则，AI 模型就会根据已经制定好的规则内容根据用户的问题来将对应的内容告诉给用户。
 
-- **大麦 AI 项目详细讲解：** [👉 点击查看讲解](https://javaup.chat/pages/bdede9/)
+- **大麦 AI 项目详细讲解：** [👉 点击查看讲解](https://javaup.chat/damai-ai/overview/project-intro)
 
 
 
@@ -98,7 +98,7 @@ AI 目前来说可以是非常非常的火热！但凡是个程序员都不好�
 
 大麦项目代码地址： [👉 点击即可跳转](https://gitee.com/java-up-up/damai)
 
-大麦项目详细介绍： [👉 点击即可跳转](https://javaup.chat/pages/83cf22/)
+大麦项目详细介绍： [👉 点击即可跳转](https://javaup.chat/damai/overview/project-intro)
 
 # 项目流程
 
