@@ -1,8 +1,12 @@
 {
   "mcpServers": {
-    "time": {
+    "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-time"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Applications/java/idea_work_my/gitee/damai-ai"
+      ]
     }
   }
 }

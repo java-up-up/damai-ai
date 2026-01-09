@@ -36,14 +36,16 @@ public class SimpleChatController {
 
     /**
      * 使用MCP工具的聊天接口
-     * MCP时间服务器提供了获取当前时间和时区转换的能力
-     * 示例问题："现在几点了？" "北京时间现在是几点？" "把北京时间转换成纽约时间"
+     * MCP Filesystem服务器让AI能够操作文件系统（AI本身做不到的事情）：
+     * 示例问题：
+     * "帮我读取项目根目录下的pom.xml文件内容"
      */
     @RequestMapping(value = "/chat/mcp", produces = "text/html;charset=utf-8")
     public Flux<String> chatWithMcp(@RequestParam("prompt") String prompt) {
         return chatClient.prompt()
                 .user(prompt)
-                .toolCallbacks(mcpToolCallbackProvider)  // 注入MCP工具
+                // 注入MCP工具
+                .toolCallbacks(mcpToolCallbackProvider)
                 .stream()
                 .content();
     }
