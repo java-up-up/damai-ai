@@ -12,10 +12,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EsMapperScan("org.javaup.ai.es.mapper")
 @MapperScan("org.javaup.ai.mapper")
 @SpringBootApplication
-public class DaMaiAiApplication {
+public class DaMaiAiCoreApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DaMaiAiApplication.class, args);
+        SpringApplication.run(DaMaiAiCoreApplication.class, args);
     }
 
 }

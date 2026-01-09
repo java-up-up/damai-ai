@@ -7,6 +7,13 @@
         "@modelcontextprotocol/server-filesystem",
         "/Applications/java/idea_work_my/gitee/damai-ai"
       ]
+    },
+    "damai-ticket": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/Applications/java/idea_work_my/gitee/damai-ai/damai-mcp-server/target/damai-mcp-server-0.0.1-SNAPSHOT.jar"
+      ]
     }
   }
 }

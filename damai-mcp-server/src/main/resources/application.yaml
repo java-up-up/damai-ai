@@ -1,0 +1,35 @@
+# 大麦票务 MCP Server 配置
+spring:
+  application:
+    name: damai-mcp-server
+  main:
+    # MCP Server使用stdio通信，不需要web端口
+    web-application-type: none
+    # 禁用Banner，避免干扰MCP的stdio通信
+    banner-mode: off
+
+# MCP Server配置
+spring.ai.mcp.server:
+  # MCP Server名称，会在MCP协议握手时告诉Client
+  name: damai-ticket-mcp
+  # MCP Server版本
+  version: 1.0.0
+  # 使用stdio传输（标准输入输出，适合本地进程间通信）
+  transport: STDIO
+
+# 大麦后端API配置
+damai:
+  api:
+    # 大麦票务后端地址，根据实际情况修改
+    base-url: http://localhost:6085
+
+# 日志配置 - MCP Server使用stdio通信，日志必须输出到文件，不能输出到控制台
+logging:
+  file:
+    name: logs/mcp-server.log
+  level:
+    root: INFO
+    org.javaup.mcp: DEBUG
+  pattern:
+    # 禁用控制台输出
+    console:
