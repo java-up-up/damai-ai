@@ -15,6 +15,11 @@ const routes = [
     path: '/damai-rag',
     name: 'SmartRag',
     component: () => import('../views/SmartRag.vue')
+  },
+  {
+    path: '/damai-analysis',
+    name: 'DaMaiAnalysis',
+    component: () => import('../views/DaMaiAnalysis.vue')
   }
 ]
 

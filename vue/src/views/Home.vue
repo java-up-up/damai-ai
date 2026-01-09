@@ -31,6 +31,7 @@ import {
 } from '@heroicons/vue/24/outline'
 import DamaiAssistantIcon from '../components/icons/DamaiAssistantIcon.vue'
 import DamaiAssistantRobotIcon from '../components/icons/DamaiAssistantRobotIcon.vue'
+import DamaiAnalysisIcon from '../components/icons/DamaiAnalysisIcon.vue'
 
 const isDark = useDark()
 
@@ -48,6 +49,13 @@ const aiApps = ref([
     description: '帮你解决大麦规则相关的问题',
     route: '/damai-rag',
     icon: DamaiAssistantIcon
+  },
+  {
+    id: 3,
+    title: '大麦运维助手',
+    description: '日志查询、链路追踪、系统监控分析',
+    route: '/damai-analysis',
+    icon: DamaiAnalysisIcon
   }
 ])
 </script>
@@ -100,9 +108,15 @@ const aiApps = ref([
     margin: 0 auto;
     perspective: 1000px;
 
-    @media (min-width: 1200px) {
+    @media (min-width: 768px) {
       grid-template-columns: repeat(2, 1fr);
-      max-width: 800px;
+      max-width: 700px;
+      gap: 2rem;
+    }
+
+    @media (min-width: 1200px) {
+      grid-template-columns: repeat(3, 1fr);
+      max-width: 1100px;
       gap: 3rem;
     }
   }

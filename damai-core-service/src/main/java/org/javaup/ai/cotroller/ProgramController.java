@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,7 +41,7 @@ public class ProgramController {
     private ChatClient markdownChatClient;
     
     @Resource
-    private ToolCallbackProvider mcpToolCallbackProvider;
+    private ChatClient analysisChatClient;
 
     @RequestMapping(value = "/chat", produces = "text/html;charset=utf-8")
     public Flux<String> chat(@RequestParam("prompt") String prompt,
@@ -50,8 +49,6 @@ public class ProgramController {
         // 请求模型
         return assistantChatClient.prompt()
                 .user(prompt)
-                // 注入MCP工具
-                .toolCallbacks(mcpToolCallbackProvider)
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId))
                 .stream()
                 .content();
@@ -62,6 +59,17 @@ public class ProgramController {
                              @RequestParam("chatId") String chatId) {
         // 请求模型
         return markdownChatClient.prompt()
+                .user(prompt)
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId))
+                .stream()
+                .content();
+    }
+    
+    @RequestMapping(value = "/chat/mcp", produces = "text/html;charset=utf-8")
+    public Flux<String> chatMcp(@RequestParam("prompt") String prompt,
+                             @RequestParam("chatId") String chatId) {
+        // 请求模型（MCP工具已在 analysisChatClient 中全局配置）
+        return analysisChatClient.prompt()
                 .user(prompt)
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId))
                 .stream()

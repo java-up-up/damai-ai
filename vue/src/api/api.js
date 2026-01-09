@@ -116,6 +116,18 @@ export const chatAPI = {
     }
   },
 
+  // 发送运维分析消息（MCP日志查询）
+  async sendAnalysisMessage(prompt, chatId) {
+    try {
+      const url = buildUrl('/program/chat/mcp', { prompt, chatId })
+      const response = await fetchWithTimeout(url)
+      return response.body.getReader()
+    } catch (error) {
+      console.error('Analysis Message Error:', error)
+      throw error
+    }
+  },
+
   // 删除对话
   async deleteChat(chatId, type = 1) {
     try {
