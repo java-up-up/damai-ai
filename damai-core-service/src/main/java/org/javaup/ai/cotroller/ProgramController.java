@@ -3,15 +3,14 @@ package org.javaup.ai.cotroller;
 import jakarta.annotation.Resource;
 import org.javaup.ai.ai.function.call.ProgramCall;
 import org.javaup.ai.ai.function.dto.ProgramSearchFunctionDto;
-import org.javaup.ai.ai.rag.QueryRewriter;
 import org.javaup.ai.dto.ProgramDetailDto;
-import org.javaup.ai.service.ChatTypeHistoryService;
 import org.javaup.ai.vo.ProgramSearchVo;
 import org.javaup.ai.vo.result.ProgramDetailResultVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,16 +42,7 @@ public class ProgramController {
     private ChatClient markdownChatClient;
     
     @Resource
-    private ChatClient titleChatClient;
-    
-    @Autowired
-    private ChatTypeHistoryService chatTypeHistoryService;
-    
-    @Autowired
-    private QueryRewriter queryRewriter;
-    
-    @Autowired
-    private ChatMemory chatMemory;
+    private ToolCallbackProvider mcpToolCallbackProvider;
 
     @RequestMapping(value = "/chat", produces = "text/html;charset=utf-8")
     public Flux<String> chat(@RequestParam("prompt") String prompt,
@@ -60,6 +50,8 @@ public class ProgramController {
         // 请求模型
         return assistantChatClient.prompt()
                 .user(prompt)
+                // 注入MCP工具
+                .toolCallbacks(mcpToolCallbackProvider)
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId))
                 .stream()
                 .content();
