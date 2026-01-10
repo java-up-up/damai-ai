@@ -112,10 +112,10 @@ public class LogQueryMcpTool {
             wrapper.match(LogDocument::getMessage, keyword);
 
             if (serviceName != null && !serviceName.isEmpty()) {
-                wrapper.eq(LogDocument::getProjectName, serviceName);
+                wrapper.match(LogDocument::getProjectName, serviceName);
             }
             if (level != null && !level.isEmpty()) {
-                wrapper.eq(LogDocument::getLevel, level.toUpperCase());
+                wrapper.match(LogDocument::getLevel, level.toUpperCase());
             }
 
             wrapper.orderByDesc(LogDocument::getTimestamp);
@@ -148,7 +148,7 @@ public class LogQueryMcpTool {
             }
 
             LambdaEsQueryWrapper<LogDocument> wrapper = new LambdaEsQueryWrapper<>();
-            wrapper.eq(LogDocument::getTraceId, traceId);
+            wrapper.match(LogDocument::getTraceId, traceId);
             wrapper.orderByAsc(LogDocument::getTimeMillis);
             wrapper.limit(200);
 
@@ -198,10 +198,10 @@ public class LogQueryMcpTool {
             int limit = (size != null && size > 0) ? Math.min(size, 100) : 20;
 
             LambdaEsQueryWrapper<LogDocument> wrapper = new LambdaEsQueryWrapper<>();
-            wrapper.eq(LogDocument::getProjectName, serviceName);
+            wrapper.match(LogDocument::getProjectName, serviceName);
 
             if (level != null && !level.isEmpty()) {
-                wrapper.eq(LogDocument::getLevel, level.toUpperCase());
+                wrapper.match(LogDocument::getLevel, level.toUpperCase());
             }
 
             wrapper.orderByDesc(LogDocument::getTimestamp);
@@ -234,10 +234,10 @@ public class LogQueryMcpTool {
             int limit = (size != null && size > 0) ? Math.min(size, 100) : 30;
 
             LambdaEsQueryWrapper<LogDocument> wrapper = new LambdaEsQueryWrapper<>();
-            wrapper.eq(LogDocument::getLevel, "ERROR");
+            wrapper.match(LogDocument::getLevel, "ERROR");
 
             if (serviceName != null && !serviceName.isEmpty()) {
-                wrapper.eq(LogDocument::getProjectName, serviceName);
+                wrapper.match(LogDocument::getProjectName, serviceName);
             }
 
             wrapper.orderByDesc(LogDocument::getTimestamp);
@@ -274,10 +274,10 @@ public class LogQueryMcpTool {
             int limit = (size != null && size > 0) ? Math.min(size, 100) : 30;
 
             LambdaEsQueryWrapper<LogDocument> wrapper = new LambdaEsQueryWrapper<>();
-            wrapper.eq(LogDocument::getLevel, "WARN");
+            wrapper.match(LogDocument::getLevel, "WARN");
 
             if (serviceName != null && !serviceName.isEmpty()) {
-                wrapper.eq(LogDocument::getProjectName, serviceName);
+                wrapper.match(LogDocument::getProjectName, serviceName);
             }
 
             wrapper.orderByDesc(LogDocument::getTimestamp);
@@ -322,8 +322,8 @@ public class LogQueryMcpTool {
                 Map<String, Long> levelCounts = new LinkedHashMap<>();
                 for (String level : levels) {
                     LambdaEsQueryWrapper<LogDocument> wrapper = new LambdaEsQueryWrapper<>();
-                    wrapper.eq(LogDocument::getProjectName, service);
-                    wrapper.eq(LogDocument::getLevel, level);
+                    wrapper.match(LogDocument::getProjectName, service);
+                    wrapper.match(LogDocument::getLevel, level);
                     Long count = logMapper.selectCount(wrapper);
                     levelCounts.put(level, count);
                 }
@@ -357,7 +357,7 @@ public class LogQueryMcpTool {
             wrapper.match(LogDocument::getSourceClass, className);
 
             if (methodName != null && !methodName.isEmpty()) {
-                wrapper.eq(LogDocument::getSourceMethod, methodName);
+                wrapper.match(LogDocument::getSourceMethod, methodName);
             }
 
             wrapper.orderByDesc(LogDocument::getTimestamp);

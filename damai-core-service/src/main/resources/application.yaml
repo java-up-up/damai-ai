@@ -52,14 +52,17 @@ spring:
       chat:
         options:
           model: deepseek-chat
-    mcp:
-      client:
-        sse:
-          connections:
-            damai-log:
-              url: http://localhost:8085
-            damai-metrics:
-              url: http://localhost:8086
+    # stdio 和 sse 两种模式不能同时使用，使用一种必须把另一种注释掉
+#    mcp:
+#      client:
+#        stdio:
+#          servers-configuration: mcp-servers.json
+#        sse:
+#          connections:
+#            damai-log:
+#              url: http://localhost:8085
+#            damai-metrics:
+#              url: http://localhost:8086
 easy-es:
   #默认为true,若为false则认为不启用本框架
   enable: true
