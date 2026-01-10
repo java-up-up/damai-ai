@@ -38,7 +38,7 @@ spring:
         model: deepseek-r1:7b
     openai:
       base-url: https://dashscope.aliyuncs.com/compatible-mode
-      api-key: openai的key
+      api-key: ${阿里百炼的key}
       chat:
         options:
           model: qwen-max-latest
@@ -48,7 +48,7 @@ spring:
           dimensions: 1024
     deepseek:
       base-url: https://api.deepseek.com
-      api-key: deepseek的key
+      api-key: ${deepseek的key}
       chat:
         options:
           model: deepseek-chat
@@ -58,6 +58,8 @@ spring:
           connections:
             damai-log:
               url: http://localhost:8085
+            damai-metrics:
+              url: http://localhost:8086
 easy-es:
   #默认为true,若为false则认为不启用本框架
   enable: true

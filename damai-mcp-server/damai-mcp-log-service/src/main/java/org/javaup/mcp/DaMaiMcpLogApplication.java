@@ -11,9 +11,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  **/
 @SpringBootApplication
 @EsMapperScan("org.javaup.mcp.mapper")
-public class DaMaiMcpServerApplication {
+public class DaMaiMcpLogApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DaMaiMcpServerApplication.class, args);
+        SpringApplication.run(DaMaiMcpLogApplication.class, args);
     }
 }

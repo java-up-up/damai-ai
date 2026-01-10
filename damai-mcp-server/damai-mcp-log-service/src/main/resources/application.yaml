@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: damai-mcp-server
+    name: damai-mcp-log-service
   main:
     # 使用WebFlux支持SSE
     web-application-type: reactive
