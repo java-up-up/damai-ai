@@ -359,7 +359,6 @@ public class MetricsQueryMcpTool {
      */
     private String queryPrometheus(String path) {
         String url = prometheusUrl + path;
-        log.debug("查询 Prometheus: {}", url);
         try {
             ProcessBuilder pb = new ProcessBuilder("curl", "-s", url);
             pb.redirectErrorStream(true);
@@ -380,7 +379,7 @@ public class MetricsQueryMcpTool {
     private String executePromQL(String query) {
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String url = prometheusUrl + "/api/v1/query?query=" + encodedQuery;
-        log.debug("执行 PromQL: {}", query);
+        log.info("执行 PromQL: {}", query);
         try {
             ProcessBuilder pb = new ProcessBuilder("curl", "-s", url);
             pb.redirectErrorStream(true);
