@@ -30,4 +30,4 @@ prometheus:
 logging:
   level:
     root: INFO
-    org.javaup.mcp: DEBUG
+    org.javaup.mcp: info

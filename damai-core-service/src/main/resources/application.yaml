@@ -38,7 +38,7 @@ spring:
         model: deepseek-r1:7b
     openai:
       base-url: https://dashscope.aliyuncs.com/compatible-mode
-      api-key: ${阿里百炼的key}
+      api-key: ${alibaba-key}
       chat:
         options:
           model: qwen-max-latest
@@ -48,7 +48,7 @@ spring:
           dimensions: 1024
     deepseek:
       base-url: https://api.deepseek.com
-      api-key: ${deepseek的key}
+      api-key: ${deepseek-key}
       chat:
         options:
           model: deepseek-chat
@@ -56,7 +56,7 @@ spring:
 #    mcp:
 #      client:
 #        stdio:
-#          servers-configuration: mcp-servers.json
+#          servers-configuration: classpath:mcp-servers.json
 #        sse:
 #          connections:
 #            damai-log:
