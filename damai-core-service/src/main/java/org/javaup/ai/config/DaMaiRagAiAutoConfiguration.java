@@ -5,6 +5,7 @@ import org.javaup.ai.advisor.ChatTypeTitleAdvisor;
 import org.javaup.ai.ai.rag.MarkdownLoader;
 import org.javaup.ai.enums.ChatType;
 import org.javaup.ai.service.ChatTypeHistoryService;
+import org.javaup.ai.service.HybridSearchService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -42,9 +43,14 @@ public class DaMaiRagAiAutoConfiguration {
     @Bean
     public ChatClient markdownChatClient(OpenAiChatModel model, ChatMemory chatMemory, VectorStore vectorStore,
                                          MarkdownLoader markdownLoader, ChatTypeHistoryService chatTypeHistoryService, 
-                                         @Qualifier("titleChatClient")ChatClient titleChatClient) {
+                                         @Qualifier("titleChatClient")ChatClient titleChatClient,
+                                         HybridSearchService hybridSearchService) {  // 👈 新增参数
         List<Document> documentList = markdownLoader.loadMarkdowns();
         vectorStore.add(documentList);
+        
+        // ========== 👇 新增：缓存文档到混合检索服务 👇 ==========
+        hybridSearchService.cacheDocuments(documentList);
+        // ========== 👆 新增结束 👆 ==========
         
         return ChatClient
                 .builder(model)
@@ -56,10 +62,11 @@ public class DaMaiRagAiAutoConfiguration {
                         ChatTypeTitleAdvisor.builder(chatTypeHistoryService).type(ChatType.MARKDOWN.getCode())
                                 .chatClient(titleChatClient).chatMemory(chatMemory).order(CHAT_TITLE_ADVISOR_ORDER).build(),
                         MessageChatMemoryAdvisor.builder(chatMemory).order(MESSAGE_CHAT_MEMORY_ADVISOR_ORDER).build(),
+                        // RAG检索配置：降低阈值、增加TopK可提高召回率
                         QuestionAnswerAdvisor.builder(vectorStore)
                                 .searchRequest(SearchRequest.builder()
-                                        .similarityThreshold(0.3)
-                                        .topK(8)
+                                        .similarityThreshold(0.25)  // 降低阈值：0.3 -> 0.25，提高召回率
+                                        .topK(12)                   // 增加数量：8 -> 12，召回更多候选
                                         .build())
                                 .build()
                 )
