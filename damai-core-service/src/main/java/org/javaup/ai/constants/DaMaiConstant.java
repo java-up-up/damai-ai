@@ -143,4 +143,6 @@ public class DaMaiConstant {
     public static final Integer MESSAGE_CHAT_MEMORY_ADVISOR_ORDER = Ordered.HIGHEST_PRECEDENCE + 1000;
     
     public static final Integer CHAT_TITLE_ADVISOR_ORDER = Ordered.HIGHEST_PRECEDENCE + 999;
+    
+    public static final String RAG_VERSION = "rag.version";
 }

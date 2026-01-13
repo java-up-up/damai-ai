@@ -2,6 +2,7 @@ package org.javaup.ai.config;
 
 import org.javaup.ai.advisor.ChatTypeHistoryAdvisor;
 import org.javaup.ai.advisor.ChatTypeTitleAdvisor;
+import org.javaup.ai.advisor.QueryRewriteAdvisor;
 import org.javaup.ai.ai.rag.MarkdownLoader;
 import org.javaup.ai.enums.ChatType;
 import org.javaup.ai.service.ChatTypeHistoryService;
@@ -17,7 +18,9 @@ import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
 import java.util.List;
@@ -26,6 +29,7 @@ import static org.javaup.ai.constants.DaMaiConstant.CHAT_TITLE_ADVISOR_ORDER;
 import static org.javaup.ai.constants.DaMaiConstant.CHAT_TYPE_HISTORY_ADVISOR_ORDER;
 import static org.javaup.ai.constants.DaMaiConstant.MARK_DOWN_SYSTEM_PROMPT;
 import static org.javaup.ai.constants.DaMaiConstant.MESSAGE_CHAT_MEMORY_ADVISOR_ORDER;
+import static org.javaup.ai.constants.DaMaiConstant.RAG_VERSION;
 
 /**
  * @program: 大麦-ai智能服务项目。 添加 阿星不是程序员 微信，添加时备注 ai 来获取项目的完整资料 
@@ -39,18 +43,14 @@ public class DaMaiRagAiAutoConfiguration {
     public MarkdownLoader markdownLoader(ResourcePatternResolver resourcePatternResolver){
         return new MarkdownLoader(resourcePatternResolver);
     }
-
+    
     @Bean
+    @ConditionalOnProperty(name = RAG_VERSION, havingValue = "1",matchIfMissing = true)
     public ChatClient markdownChatClient(OpenAiChatModel model, ChatMemory chatMemory, VectorStore vectorStore,
-                                         MarkdownLoader markdownLoader, ChatTypeHistoryService chatTypeHistoryService, 
-                                         @Qualifier("titleChatClient")ChatClient titleChatClient,
-                                         HybridSearchService hybridSearchService) {  // 👈 新增参数
+                                         MarkdownLoader markdownLoader, ChatTypeHistoryService chatTypeHistoryService,
+                                         @Qualifier("titleChatClient")ChatClient titleChatClient) {
         List<Document> documentList = markdownLoader.loadMarkdowns();
         vectorStore.add(documentList);
-        
-        // ========== 👇 新增：缓存文档到混合检索服务 👇 ==========
-        hybridSearchService.cacheDocuments(documentList);
-        // ========== 👆 新增结束 👆 ==========
         
         return ChatClient
                 .builder(model)
@@ -62,11 +62,45 @@ public class DaMaiRagAiAutoConfiguration {
                         ChatTypeTitleAdvisor.builder(chatTypeHistoryService).type(ChatType.MARKDOWN.getCode())
                                 .chatClient(titleChatClient).chatMemory(chatMemory).order(CHAT_TITLE_ADVISOR_ORDER).build(),
                         MessageChatMemoryAdvisor.builder(chatMemory).order(MESSAGE_CHAT_MEMORY_ADVISOR_ORDER).build(),
-                        // RAG检索配置：降低阈值、增加TopK可提高召回率
                         QuestionAnswerAdvisor.builder(vectorStore)
                                 .searchRequest(SearchRequest.builder()
-                                        .similarityThreshold(0.25)  // 降低阈值：0.3 -> 0.25，提高召回率
-                                        .topK(12)                   // 增加数量：8 -> 12，召回更多候选
+                                        .similarityThreshold(0.3)
+                                        .topK(8)
+                                        .build())
+                                .build()
+                )
+                .build();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = RAG_VERSION, havingValue = "2")
+    public ChatClient markdownChatClient(OpenAiChatModel model, ChatMemory chatMemory, VectorStore vectorStore,
+                                         MarkdownLoader markdownLoader, ChatTypeHistoryService chatTypeHistoryService, 
+                                         @Qualifier("titleChatClient")ChatClient titleChatClient,
+                                         HybridSearchService hybridSearchService) {  // 👈 新增参数
+        List<Document> documentList = markdownLoader.loadMarkdowns();
+        vectorStore.add(documentList);
+        
+        hybridSearchService.cacheDocuments(documentList);
+        
+        return ChatClient
+                .builder(model)
+                .defaultSystem(MARK_DOWN_SYSTEM_PROMPT)
+                .defaultAdvisors(
+                        new SimpleLoggerAdvisor(),
+                        QueryRewriteAdvisor.builder()
+                                .order(Ordered.HIGHEST_PRECEDENCE + 50)
+                                .enableLLMRewrite(false)  
+                                .build(),
+                        ChatTypeHistoryAdvisor.builder(chatTypeHistoryService).type(ChatType.MARKDOWN.getCode())
+                                .order(CHAT_TYPE_HISTORY_ADVISOR_ORDER).build(),
+                        ChatTypeTitleAdvisor.builder(chatTypeHistoryService).type(ChatType.MARKDOWN.getCode())
+                                .chatClient(titleChatClient).chatMemory(chatMemory).order(CHAT_TITLE_ADVISOR_ORDER).build(),
+                        MessageChatMemoryAdvisor.builder(chatMemory).order(MESSAGE_CHAT_MEMORY_ADVISOR_ORDER).build(),
+                        QuestionAnswerAdvisor.builder(vectorStore)
+                                .searchRequest(SearchRequest.builder()
+                                        .similarityThreshold(0.25)
+                                        .topK(12)                   
                                         .build())
                                 .build()
                 )

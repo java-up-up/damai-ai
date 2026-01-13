@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @program: 大麦-ai智能服务项目
+ * @program: 大麦-ai智能服务项目。 添加 阿星不是程序员 微信，添加时备注 ai 来获取项目的完整资料
  * @description: Rerank重排序服务 - 对召回结果进行二次精排
  * @author: 阿星不是程序员
  **/
@@ -30,11 +30,7 @@ public class RerankService {
         if (documents == null || documents.isEmpty()) {
             return documents;
         }
-        
-        // 提取query关键词
         Set<String> queryKeywords = extractKeywords(query);
-        
-        // 计算每个文档的相关性分数
         List<ScoredDocument> scoredDocs = documents.stream()
             .map(doc -> {
                 String docText = doc.getText();
@@ -67,7 +63,6 @@ public class RerankService {
         }
         
         try {
-            // 构建文档列表
             StringBuilder docList = new StringBuilder();
             for (int i = 0; i < documents.size(); i++) {
                 String docText = documents.get(i).getText();
@@ -94,7 +89,6 @@ public class RerankService {
                 .call()
                 .content();
             
-            // 解析返回的排序结果
             List<Document> reranked = new ArrayList<>();
             String[] indices = result.replaceAll("[^0-9,]", "").split(",");
             for (String idx : indices) {
@@ -114,32 +108,24 @@ public class RerankService {
         }
     }
     
-    /**
-     * 从文本中提取关键词
-     */
     private Set<String> extractKeywords(String text) {
         return Arrays.stream(text.split("[\\s,，。？?！!]+"))
             .filter(s -> s.length() > 1)
             .collect(Collectors.toSet());
     }
     
-    /**
-     * 计算关键词与文档内容的相关性分数
-     */
     private double computeRelevanceScore(Set<String> queryKeywords, String content) {
-        if (queryKeywords.isEmpty()) return 0.0;
+        if (queryKeywords.isEmpty()) {
+            return 0.0;
+        }
         
         long matchCount = queryKeywords.stream()
             .filter(content::contains)
             .count();
         
-        // 归一化分数
         return (double) matchCount / queryKeywords.size();
     }
     
-    /**
-     * 带分数的文档包装类
-     */
     @Data
     @AllArgsConstructor
     private static class ScoredDocument {
