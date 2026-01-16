@@ -143,8 +143,6 @@ AI 目前来说可以是非常非常的火热！但凡是个程序员都不好�
 
 ![](https://multimedia-javaup.cn/%E5%A4%A7%E9%BA%A6AI/%E4%B8%9A%E5%8A%A1/%E8%87%AA%E5%8A%A8%E5%9C%B0%E7%94%9F%E6%88%90%E8%AE%A2%E5%8D%95.gif)
 
-
-
 ## 大麦规则助手
 
 用户查询节目演唱会的订票和退票规则时，自己去系统进行查询会觉得很麻烦，想让规则助手来回答自己提出的问题，比如：
@@ -163,6 +161,38 @@ AI 目前来说可以是非常非常的火热！但凡是个程序员都不好�
 ### 询问 儿童票订购的相关问题
 
 ![](https://multimedia-javaup.cn/%E5%A4%A7%E9%BA%A6AI/%E4%B8%9A%E5%8A%A1/%E8%A7%84%E5%88%99%E5%8A%A9%E6%89%8B/%E5%84%BF%E7%AB%A5%E7%A5%A8%E8%AE%A2%E8%B4%AD%E7%9A%84%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98.gif)
+
+## 大麦运维助手
+当项目出现问题时，可以直接询问运维助手日志错误的内容，运维助手会帮你去日志系统中查询对应的日志内容，并且会追踪整个请求的链路，并且给出相应的解决方案。
+另外还可以询问服务的各项指标，比如JVM内存情况、GC情况、线程状态等，比如：
+
+- 系统中有哪些微服务
+- 询问“用户手机号不存在”的错误日志内容
+- 根据这个错误所在的traceId进行完整的链路追踪
+- 查看系统最近的错误日志
+- 帮我查看order-service的JVM内存使用情况
+- 帮我查看order-service的GC情况怎么样
+- 帮我查看order-service的运行状态怎么样
+
+### 系统中有哪些微服务
+
+![](https://multimedia-javaup.cn/%E5%A4%A7%E9%BA%A6AI/%E4%B8%9A%E5%8A%A1/%E7%B3%BB%E7%BB%9F%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E5%BE%AE%E6%9C%8D%E5%8A%A1.gif)
+
+### 询问“用户手机号不存在”的错误日志内容
+
+![](https://multimedia-javaup.cn/%E5%A4%A7%E9%BA%A6AI/%E4%B8%9A%E5%8A%A1/%E8%AF%A2%E9%97%AE%E7%94%A8%E6%88%B7%E6%89%8B%E6%9C%BA%E5%8F%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.gif)
+
+### 根据这个错误所在的traceId进行完整的链路追踪
+
+![](https://multimedia-javaup.cn/%E5%A4%A7%E9%BA%A6AI/%E4%B8%9A%E5%8A%A1/%E6%A0%B9%E6%8D%AE%E8%BF%99%E4%B8%AA%E9%94%99%E8%AF%AF%E6%89%80%E5%9C%A8%E7%9A%84traceId%E8%BF%9B%E8%A1%8C%E5%AE%8C%E6%95%B4%E7%9A%84%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA.gif)
+
+### 帮我查看order-service的JVM内存使用情况
+
+![](https://multimedia-javaup.cn/%E5%A4%A7%E9%BA%A6AI/%E4%B8%9A%E5%8A%A1/order-service%E7%9A%84JVM%E5%86%85%E5%AD%98%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5.gif)
+
+### 帮我查看order-service的运行状态怎么样
+
+![](https://multimedia-javaup.cn/%E5%A4%A7%E9%BA%A6AI/%E4%B8%9A%E5%8A%A1/order-service%E7%9A%84%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81%E6%80%8E%E4%B9%88%E6%A0%B7.gif)
 
 # 架构设计
 
