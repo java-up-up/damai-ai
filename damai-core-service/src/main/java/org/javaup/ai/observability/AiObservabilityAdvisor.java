@@ -97,8 +97,8 @@ public class AiObservabilityAdvisor implements BaseChatMemoryAdvisor {
             // 提取Token使用信息
             if (chatResponse != null && chatResponse.getMetadata() != null && chatResponse.getMetadata().getUsage() != null) {
                 Usage usage = chatResponse.getMetadata().getUsage();
-                int promptTokens = usage.getPromptTokens() != null ? usage.getPromptTokens().intValue() : 0;
-                int completionTokens = usage.getCompletionTokens() != null ? usage.getCompletionTokens().intValue() : 0;
+                int promptTokens = usage.getPromptTokens() != null ? usage.getPromptTokens() : 0;
+                int completionTokens = usage.getCompletionTokens() != null ? usage.getCompletionTokens() : 0;
                 
                 trace.setPromptTokens(promptTokens);
                 trace.setCompletionTokens(completionTokens);
@@ -113,10 +113,15 @@ public class AiObservabilityAdvisor implements BaseChatMemoryAdvisor {
                         promptTokens + completionTokens, cost);
             }
             
-            // 记录AI输出
+            // 记录AI输出（流式场景下getText()为空，这是正常的）
             if (chatResponse != null && chatResponse.getResult() != null && chatResponse.getResult().getOutput() != null) {
                 String aiOutput = chatResponse.getResult().getOutput().getText();
-                trace.setAiOutput(truncate(aiOutput, 1000));
+                // 流式输出时getText()为空，标记为流式响应
+                if (aiOutput == null || aiOutput.isEmpty()) {
+                    trace.setAiOutput("[流式输出]");
+                } else {
+                    trace.setAiOutput(truncate(aiOutput, 1000));
+                }
             }
             
             // 异步保存

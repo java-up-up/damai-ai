@@ -11,9 +11,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -29,16 +27,14 @@ public class AiObservabilityService {
     @Autowired
     private AiTraceMapper aiTraceMapper;
     
+    @Autowired
+    private AiObservabilityProperties properties;
+    
     /**
-     * 模型价格配置（单位：元/1K tokens）
+     * 默认价格（未配置模型时使用）
      */
-    private static final Map<String, BigDecimal[]> MODEL_PRICING = new HashMap<>() {{
-        // [输入价格, 输出价格]
-        put("deepseek-chat", new BigDecimal[]{new BigDecimal("0.001"), new BigDecimal("0.002")});
-        put("qwen-max-latest", new BigDecimal[]{new BigDecimal("0.02"), new BigDecimal("0.06")});
-        put("gpt-4", new BigDecimal[]{new BigDecimal("0.03"), new BigDecimal("0.06")});
-        put("gpt-3.5-turbo", new BigDecimal[]{new BigDecimal("0.0015"), new BigDecimal("0.002")});
-    }};
+    private static final BigDecimal DEFAULT_INPUT_PRICE = new BigDecimal("0.001");
+    private static final BigDecimal DEFAULT_OUTPUT_PRICE = new BigDecimal("0.002");
     
     /**
      * 生成追踪ID
@@ -66,14 +62,21 @@ public class AiObservabilityService {
     }
     
     /**
-     * 计算预估费用
+     * 计算预估费用（从配置文件读取价格）
      */
     public BigDecimal calculateCost(String modelName, int promptTokens, int completionTokens) {
-        BigDecimal[] pricing = MODEL_PRICING.getOrDefault(modelName, 
-                new BigDecimal[]{new BigDecimal("0.001"), new BigDecimal("0.002")});
+        BigDecimal inputPrice = DEFAULT_INPUT_PRICE;
+        BigDecimal outputPrice = DEFAULT_OUTPUT_PRICE;
         
-        BigDecimal inputCost = pricing[0].multiply(new BigDecimal(promptTokens)).divide(new BigDecimal(1000), 6, RoundingMode.HALF_UP);
-        BigDecimal outputCost = pricing[1].multiply(new BigDecimal(completionTokens)).divide(new BigDecimal(1000), 6, RoundingMode.HALF_UP);
+        // 从配置读取价格
+        AiObservabilityProperties.ModelPrice modelPrice = properties.getPricing().get(modelName);
+        if (modelPrice != null) {
+            inputPrice = modelPrice.getInput();
+            outputPrice = modelPrice.getOutput();
+        }
+        
+        BigDecimal inputCost = inputPrice.multiply(new BigDecimal(promptTokens)).divide(new BigDecimal(1000), 6, RoundingMode.HALF_UP);
+        BigDecimal outputCost = outputPrice.multiply(new BigDecimal(completionTokens)).divide(new BigDecimal(1000), 6, RoundingMode.HALF_UP);
         
         return inputCost.add(outputCost);
     }

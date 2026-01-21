@@ -88,3 +88,21 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     local-cache-scope: statement  
+
+# AI可观测性配置 - 模型价格（单位：元/1K tokens）
+# 参考价格，请以各厂商官网为准
+ai:
+  observability:
+    pricing:
+      deepseek-chat:
+        input: 0.001
+        output: 0.002
+      qwen-max-latest:
+        input: 0.02
+        output: 0.06
+      gpt-4:
+        input: 0.21
+        output: 0.42
+      "[gpt-3.5-turbo]":
+        input: 0.0035
+        output: 0.014
