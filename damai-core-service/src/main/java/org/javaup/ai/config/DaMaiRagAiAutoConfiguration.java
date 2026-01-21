@@ -5,6 +5,8 @@ import org.javaup.ai.advisor.ChatTypeTitleAdvisor;
 import org.javaup.ai.advisor.QueryRewriteAdvisor;
 import org.javaup.ai.ai.rag.MarkdownLoader;
 import org.javaup.ai.enums.ChatType;
+import org.javaup.ai.observability.AiObservabilityAdvisor;
+import org.javaup.ai.observability.AiObservabilityService;
 import org.javaup.ai.service.ChatTypeHistoryService;
 import org.javaup.ai.service.HybridSearchService;
 import org.springframework.ai.chat.client.ChatClient;
@@ -29,6 +31,7 @@ import static org.javaup.ai.constants.DaMaiConstant.CHAT_TITLE_ADVISOR_ORDER;
 import static org.javaup.ai.constants.DaMaiConstant.CHAT_TYPE_HISTORY_ADVISOR_ORDER;
 import static org.javaup.ai.constants.DaMaiConstant.MARK_DOWN_SYSTEM_PROMPT;
 import static org.javaup.ai.constants.DaMaiConstant.MESSAGE_CHAT_MEMORY_ADVISOR_ORDER;
+import static org.javaup.ai.constants.DaMaiConstant.OBSERVABILITY_ADVISOR_ORDER;
 import static org.javaup.ai.constants.DaMaiConstant.RAG_VERSION;
 
 /**
@@ -48,7 +51,8 @@ public class DaMaiRagAiAutoConfiguration {
     @ConditionalOnProperty(name = RAG_VERSION, havingValue = "1",matchIfMissing = true)
     public ChatClient markdownChatClient(OpenAiChatModel model, ChatMemory chatMemory, VectorStore vectorStore,
                                          MarkdownLoader markdownLoader, ChatTypeHistoryService chatTypeHistoryService,
-                                         @Qualifier("titleChatClient")ChatClient titleChatClient) {
+                                         @Qualifier("titleChatClient")ChatClient titleChatClient,
+                                         AiObservabilityService observabilityService) {
         List<Document> documentList = markdownLoader.loadMarkdowns();
         vectorStore.add(documentList);
         
@@ -67,6 +71,12 @@ public class DaMaiRagAiAutoConfiguration {
                                         .similarityThreshold(0.3)
                                         .topK(8)
                                         .build())
+                                .build(),
+                        // AI增强: Observability可观测性
+                        AiObservabilityAdvisor.builder(observabilityService)
+                                .order(OBSERVABILITY_ADVISOR_ORDER)
+                                .modelName("qwen-max-latest")
+                                .requestType(ChatType.MARKDOWN.getMsg())
                                 .build()
                 )
                 .build();
@@ -77,7 +87,8 @@ public class DaMaiRagAiAutoConfiguration {
     public ChatClient markdownChatClient(OpenAiChatModel model, ChatMemory chatMemory, VectorStore vectorStore,
                                          MarkdownLoader markdownLoader, ChatTypeHistoryService chatTypeHistoryService, 
                                          @Qualifier("titleChatClient")ChatClient titleChatClient,
-                                         HybridSearchService hybridSearchService) {  // 👈 新增参数
+                                         HybridSearchService hybridSearchService,
+                                         AiObservabilityService observabilityService) {
         List<Document> documentList = markdownLoader.loadMarkdowns();
         vectorStore.add(documentList);
         
@@ -102,6 +113,12 @@ public class DaMaiRagAiAutoConfiguration {
                                         .similarityThreshold(0.25)
                                         .topK(12)                   
                                         .build())
+                                .build(),
+                        // AI增强: Observability可观测性
+                        AiObservabilityAdvisor.builder(observabilityService)
+                                .order(OBSERVABILITY_ADVISOR_ORDER)
+                                .modelName("qwen-max-latest")
+                                .requestType(ChatType.MARKDOWN.getMsg())
                                 .build()
                 )
                 .build();

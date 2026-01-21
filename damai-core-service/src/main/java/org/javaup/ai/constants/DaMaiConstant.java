@@ -145,4 +145,9 @@ public class DaMaiConstant {
     public static final Integer CHAT_TITLE_ADVISOR_ORDER = Ordered.HIGHEST_PRECEDENCE + 999;
     
     public static final String RAG_VERSION = "rag.version";
+    
+    /**
+     * 可观测性Advisor顺序
+     */
+    public static final Integer OBSERVABILITY_ADVISOR_ORDER = Ordered.HIGHEST_PRECEDENCE + 2000;
 }

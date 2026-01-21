@@ -6,6 +6,8 @@ import org.javaup.ai.advisor.ChatTypeTitleAdvisor;
 import org.javaup.ai.ai.function.AiProgram;
 import org.javaup.ai.constants.DaMaiConstant;
 import org.javaup.ai.enums.ChatType;
+import org.javaup.ai.observability.AiObservabilityAdvisor;
+import org.javaup.ai.observability.AiObservabilityService;
 import org.javaup.ai.service.ChatTypeHistoryService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -24,6 +26,7 @@ import org.springframework.context.annotation.Bean;
 import static org.javaup.ai.constants.DaMaiConstant.CHAT_TITLE_ADVISOR_ORDER;
 import static org.javaup.ai.constants.DaMaiConstant.CHAT_TYPE_HISTORY_ADVISOR_ORDER;
 import static org.javaup.ai.constants.DaMaiConstant.MESSAGE_CHAT_MEMORY_ADVISOR_ORDER;
+import static org.javaup.ai.constants.DaMaiConstant.OBSERVABILITY_ADVISOR_ORDER;
 
 /**
  * @program: 大麦-ai智能服务项目。 添加 阿星不是程序员 微信，添加时备注 ai 来获取项目的完整资料 
@@ -54,7 +57,9 @@ public class DaMaiAiAutoConfiguration {
 
     @Bean
     public ChatClient assistantChatClient(DeepSeekChatModel model, ChatMemory chatMemory, AiProgram aiProgram,
-                                          ChatTypeHistoryService chatTypeHistoryService,@Qualifier("titleChatClient")ChatClient titleChatClient) {
+                                          ChatTypeHistoryService chatTypeHistoryService,
+                                          @Qualifier("titleChatClient")ChatClient titleChatClient,
+                                          AiObservabilityService observabilityService) {
         return ChatClient
                 .builder(model)
                 .defaultSystem(DaMaiConstant.DA_MAI_SYSTEM_PROMPT)
@@ -64,7 +69,13 @@ public class DaMaiAiAutoConfiguration {
                                 .order(CHAT_TYPE_HISTORY_ADVISOR_ORDER).build(),
                         ChatTypeTitleAdvisor.builder(chatTypeHistoryService).type(ChatType.ASSISTANT.getCode())
                                 .chatClient(titleChatClient).chatMemory(chatMemory).order(CHAT_TITLE_ADVISOR_ORDER).build(),
-                        MessageChatMemoryAdvisor.builder(chatMemory).order(MESSAGE_CHAT_MEMORY_ADVISOR_ORDER).build()
+                        MessageChatMemoryAdvisor.builder(chatMemory).order(MESSAGE_CHAT_MEMORY_ADVISOR_ORDER).build(),
+                        // AI增强: Observability可观测性 - Token统计、延迟监控
+                        AiObservabilityAdvisor.builder(observabilityService)
+                                .order(OBSERVABILITY_ADVISOR_ORDER)
+                                .modelName("deepseek-chat")
+                                .requestType(ChatType.ASSISTANT.getMsg())
+                                .build()
                 )
                 .defaultTools(aiProgram)
                 .build();
@@ -74,7 +85,8 @@ public class DaMaiAiAutoConfiguration {
     public ChatClient analysisChatClient(DeepSeekChatModel model, ChatMemory chatMemory,
                                           ChatTypeHistoryService chatTypeHistoryService,
                                           @Qualifier("titleChatClient")ChatClient titleChatClient,
-                                          @Qualifier("mcpToolCallbackProvider") ToolCallbackProvider mcpToolCallbackProvider) {
+                                          @Qualifier("mcpToolCallbackProvider") ToolCallbackProvider mcpToolCallbackProvider,
+                                          AiObservabilityService observabilityService) {
         return ChatClient
                 .builder(model)
                 .defaultSystem(DaMaiConstant.DA_MAI_ANALYSIS_PROMPT)
@@ -84,7 +96,13 @@ public class DaMaiAiAutoConfiguration {
                                 .order(CHAT_TYPE_HISTORY_ADVISOR_ORDER).build(),
                         ChatTypeTitleAdvisor.builder(chatTypeHistoryService).type(ChatType.ANALYSIS.getCode())
                                 .chatClient(titleChatClient).chatMemory(chatMemory).order(CHAT_TITLE_ADVISOR_ORDER).build(),
-                        MessageChatMemoryAdvisor.builder(chatMemory).order(MESSAGE_CHAT_MEMORY_ADVISOR_ORDER).build()
+                        MessageChatMemoryAdvisor.builder(chatMemory).order(MESSAGE_CHAT_MEMORY_ADVISOR_ORDER).build(),
+                        // AI增强: Observability可观测性 - Token统计、延迟监控
+                        AiObservabilityAdvisor.builder(observabilityService)
+                                .order(OBSERVABILITY_ADVISOR_ORDER)
+                                .modelName("deepseek-chat")
+                                .requestType(ChatType.ANALYSIS.getMsg())
+                                .build()
                 )
                 // 使用 MCP 工具（日志查询等）
                 .defaultToolCallbacks(mcpToolCallbackProvider)

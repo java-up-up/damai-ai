@@ -18,7 +18,7 @@ import java.util.Objects;
  * @author: 阿星不是程序员
  **/
 @Slf4j
-public class ChatTypeHistoryAdvisor implements BaseChatMemoryAdvisor {
+public class  ChatTypeHistoryAdvisor implements BaseChatMemoryAdvisor {
     
     private final Integer type;
     
