@@ -2,8 +2,10 @@ package org.javaup.ai.cotroller;
 
 import jakarta.annotation.Resource;
 import org.javaup.ai.common.ApiResponse;
+import org.javaup.ai.entity.AiTrace;
 import org.javaup.ai.observability.AiObservabilityService;
 import org.javaup.ai.observability.TokenStatistics;
+import org.javaup.ai.observability.TypeStatistics;
 import org.javaup.ai.structured.IntentRecognition;
 import org.javaup.ai.structured.ProgramRecommendation;
 import org.javaup.ai.structured.StructuredOutputService;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @program: 大麦-ai智能服务项目。 添加 阿星不是程序员 微信，添加时备注 ai 来获取项目的完整资料 
@@ -49,6 +53,24 @@ public class AiEnhanceController {
     @GetMapping("/observability/conversation")
     public ApiResponse<TokenStatistics> getConversationStats(@RequestParam("conversationId") String conversationId) {
         TokenStatistics stats = observabilityService.getConversationStats(conversationId);
+        return ApiResponse.ok(stats);
+    }
+    
+    /**
+     * 获取最近的追踪记录列表
+     */
+    @GetMapping("/observability/traces")
+    public ApiResponse<List<AiTrace>> getRecentTraces(@RequestParam(value = "limit", defaultValue = "50") int limit) {
+        List<AiTrace> traces = observabilityService.getRecentTraces(limit);
+        return ApiResponse.ok(traces);
+    }
+    
+    /**
+     * 按请求类型统计（今日）
+     */
+    @GetMapping("/observability/stats/type")
+    public ApiResponse<List<TypeStatistics>> getStatsByType() {
+        List<TypeStatistics> stats = observabilityService.getStatsByRequestType();
         return ApiResponse.ok(stats);
     }
     

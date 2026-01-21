@@ -20,6 +20,11 @@ const routes = [
     path: '/damai-analysis',
     name: 'DaMaiAnalysis',
     component: () => import('../views/DaMaiAnalysis.vue')
+  },
+  {
+    path: '/ai-observability',
+    name: 'AiObservability',
+    component: () => import('../views/AiObservability.vue')
   }
 ]
 

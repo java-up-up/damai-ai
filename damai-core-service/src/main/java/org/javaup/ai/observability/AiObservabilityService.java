@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * @program: 大麦-ai智能服务项目。 添加 阿星不是程序员 微信，添加时备注 ai 来获取项目的完整资料 
@@ -174,6 +175,47 @@ public class AiObservabilityService {
                .eq(AiTrace::getStatus, 1)
                .orderByDesc(AiTrace::getCreateTime);
         return aiTraceMapper.selectList(wrapper);
+    }
+    
+    /**
+     * 获取最近的追踪记录列表
+     */
+    public List<AiTrace> getRecentTraces(int limit) {
+        LambdaQueryWrapper<AiTrace> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AiTrace::getStatus, 1)
+               .orderByDesc(AiTrace::getCreateTime)
+               .last("LIMIT " + limit);
+        return aiTraceMapper.selectList(wrapper);
+    }
+    
+    /**
+     * 按请求类型统计
+     */
+    public List<TypeStatistics> getStatsByRequestType() {
+        LambdaQueryWrapper<AiTrace> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AiTrace::getStatus, 1)
+               .ge(AiTrace::getCreateTime, getTodayStart());
+        
+        List<AiTrace> traces = aiTraceMapper.selectList(wrapper);
+        
+        // 按requestType分组统计
+        return traces.stream()
+                .collect(Collectors.groupingBy(
+                        trace -> trace.getRequestType() != null ? trace.getRequestType() : "UNKNOWN"))
+                .entrySet().stream()
+                .map(entry -> {
+                    String type = entry.getKey();
+                    List<AiTrace> typeTraces = entry.getValue();
+                    int calls = typeTraces.size();
+                    int tokens = typeTraces.stream()
+                            .mapToInt(t -> t.getTotalTokens() != null ? t.getTotalTokens() : 0)
+                            .sum();
+                    BigDecimal cost = typeTraces.stream()
+                            .map(t -> t.getEstimatedCost() != null ? t.getEstimatedCost() : BigDecimal.ZERO)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    return new TypeStatistics(type, calls, tokens, cost);
+                })
+                .toList();
     }
     
     private Date getTodayStart() {

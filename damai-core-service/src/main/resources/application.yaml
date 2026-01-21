@@ -88,7 +88,24 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     local-cache-scope: statement  
-
+management:
+  metrics:
+    tags:
+      application: damai-ai
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  health:
+    elasticsearch:
+      enabled: false
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 # AI可观测性配置 - 模型价格（单位：元/1K tokens）
 # 参考价格，请以各厂商官网为准
 ai:

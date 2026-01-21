@@ -140,3 +140,58 @@ export const chatAPI = {
     }
   }
 } 
+
+// AI可观测性API
+export const observabilityAPI = {
+  // 获取今日统计
+  async getTodayStats() {
+    try {
+      const url = buildUrl('/ai/enhance/observability/today')
+      const response = await fetchWithTimeout(url)
+      const result = await response.json()
+      return result.data
+    } catch (error) {
+      console.error('Get Today Stats Error:', error)
+      throw error
+    }
+  },
+
+  // 获取最近的追踪记录
+  async getRecentTraces(limit = 50) {
+    try {
+      const url = buildUrl('/ai/enhance/observability/traces', { limit })
+      const response = await fetchWithTimeout(url)
+      const result = await response.json()
+      return result.data
+    } catch (error) {
+      console.error('Get Recent Traces Error:', error)
+      throw error
+    }
+  },
+
+  // 按类型统计
+  async getStatsByType() {
+    try {
+      const url = buildUrl('/ai/enhance/observability/stats/type')
+      const response = await fetchWithTimeout(url)
+      const result = await response.json()
+      return result.data
+    } catch (error) {
+      console.error('Get Stats By Type Error:', error)
+      throw error
+    }
+  },
+
+  // 获取会话统计
+  async getConversationStats(conversationId) {
+    try {
+      const url = buildUrl('/ai/enhance/observability/conversation', { conversationId })
+      const response = await fetchWithTimeout(url)
+      const result = await response.json()
+      return result.data
+    } catch (error) {
+      console.error('Get Conversation Stats Error:', error)
+      throw error
+    }
+  }
+} 

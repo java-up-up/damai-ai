@@ -27,7 +27,8 @@ import {
   ChatBubbleLeftRightIcon,
   HeartIcon,
   UserGroupIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  ChartBarIcon
 } from '@heroicons/vue/24/outline'
 import DamaiAssistantIcon from '../components/icons/DamaiAssistantIcon.vue'
 import DamaiAssistantRobotIcon from '../components/icons/DamaiAssistantRobotIcon.vue'
@@ -56,6 +57,13 @@ const aiApps = ref([
     description: '日志查询、链路追踪、系统监控分析',
     route: '/damai-analysis',
     icon: DamaiAnalysisIcon
+  },
+  {
+    id: 4,
+    title: 'AI可观测性',
+    description: 'Token统计、费用监控、调用追踪',
+    route: '/ai-observability',
+    icon: ChartBarIcon
   }
 ])
 </script>
@@ -115,9 +123,9 @@ const aiApps = ref([
     }
 
     @media (min-width: 1200px) {
-      grid-template-columns: repeat(3, 1fr);
-      max-width: 1100px;
-      gap: 3rem;
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 1400px;
+      gap: 2.5rem;
     }
   }
 
@@ -140,7 +148,7 @@ const aiApps = ref([
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     transform-style: preserve-3d;
 
-    @for $i from 1 through 3 {
+    @for $i from 1 through 4 {
       &:nth-child(#{$i}) {
         animation-delay: #{$i * 0.15}s;
       }
