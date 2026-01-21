@@ -44,10 +44,10 @@ public class MetricsQueryMcpTool {
     }
 
     /**
-     * 获取可用的服务列表
+     * 获取可用的服务列表（指标监控）
      */
     @Tool(description = "获取大麦系统中所有被 Prometheus 监控的微服务列表")
-    public ToolResult getServiceList() {
+    public ToolResult getMetricsServiceList() {
         try {
             // 查询 application 标签的所有值
             String response = queryPrometheus("/api/v1/label/application/values");
@@ -517,9 +517,15 @@ public class MetricsQueryMcpTool {
      * 格式化字节数
      */
     private String formatBytes(double bytes) {
-        if (bytes < 1024) return String.format("%.0f B", bytes);
-        if (bytes < 1024 * 1024) return String.format("%.2f KB", bytes / 1024);
-        if (bytes < 1024 * 1024 * 1024) return String.format("%.2f MB", bytes / (1024 * 1024));
+        if (bytes < 1024) {
+            return String.format("%.0f B", bytes);
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format("%.2f KB", bytes / 1024);
+        }
+        if (bytes < 1024 * 1024 * 1024) {
+            return String.format("%.2f MB", bytes / (1024 * 1024));
+        }
         return String.format("%.2f GB", bytes / (1024 * 1024 * 1024));
     }
 
@@ -530,11 +536,19 @@ public class MetricsQueryMcpTool {
         // 内存使用率超过 90% 或 CPU 超过 80% 认为异常
         if (heapUsed != null && heapMax != null && heapMax > 0) {
             double memUsage = heapUsed / heapMax;
-            if (memUsage > 0.9) return "⚠️ 内存告警";
-            if (memUsage > 0.8) return "⚠️ 内存较高";
+            if (memUsage > 0.9) {
+                return "⚠️ 内存告警";
+            }
+            if (memUsage > 0.8) {
+                return "⚠️ 内存较高";
+            }
         }
-        if (cpu != null && cpu > 0.8) return "⚠️ CPU较高";
-        if (cpu != null && cpu > 0.9) return "⚠️ CPU告警";
+        if (cpu != null && cpu > 0.8) {
+            return "⚠️ CPU较高";
+        }
+        if (cpu != null && cpu > 0.9) {
+            return "⚠️ CPU告警";
+        }
         return "✅ 正常";
     }
 
