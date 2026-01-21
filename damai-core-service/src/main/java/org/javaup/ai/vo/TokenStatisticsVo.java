@@ -1,4 +1,4 @@
-package org.javaup.ai.observability;
+package org.javaup.ai.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenStatistics {
+public class TokenStatisticsVo {
     
     /**
      * 会话ID

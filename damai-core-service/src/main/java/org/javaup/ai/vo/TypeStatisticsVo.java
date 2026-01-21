@@ -1,4 +1,4 @@
-package org.javaup.ai.observability;
+package org.javaup.ai.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TypeStatistics {
+public class TypeStatisticsVo {
     
     /**
      * 请求类型

@@ -1,4 +1,4 @@
-package org.javaup.ai.observability;
+package org.javaup.ai.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

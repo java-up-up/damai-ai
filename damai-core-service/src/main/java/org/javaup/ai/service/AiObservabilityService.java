@@ -1,9 +1,12 @@
-package org.javaup.ai.observability;
+package org.javaup.ai.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.javaup.ai.config.AiObservabilityProperties;
 import org.javaup.ai.entity.AiTrace;
 import org.javaup.ai.mapper.AiTraceMapper;
+import org.javaup.ai.vo.TokenStatisticsVo;
+import org.javaup.ai.vo.TypeStatisticsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +21,7 @@ import java.util.stream.Collectors;
 
 /**
  * @program: 大麦-ai智能服务项目。 添加 阿星不是程序员 微信，添加时备注 ai 来获取项目的完整资料 
- * @description: AI可观测性服务 - 提供调用追踪、Token统计、费用计算
+ * @description: 提供AI调用追踪数据的存储与统计分析
  * @author: 阿星不是程序员
  **/
 @Slf4j
@@ -31,14 +34,18 @@ public class AiObservabilityService {
     @Autowired
     private AiObservabilityProperties properties;
     
-    /**
-     * 默认价格（未配置模型时使用）
-     */
+    /** 默认输入Token价格（元/千Token），未配置模型时使用 */
     private static final BigDecimal DEFAULT_INPUT_PRICE = new BigDecimal("0.001");
+    
+    /** 默认输出Token价格（元/千Token），未配置模型时使用 */
     private static final BigDecimal DEFAULT_OUTPUT_PRICE = new BigDecimal("0.002");
     
     /**
      * 生成追踪ID
+     * 
+     * <p>生成16位随机字符串作为traceId，用于标识单次AI调用。</p>
+     * 
+     * @return 16位唯一追踪ID
      */
     public String generateTraceId() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
@@ -46,6 +53,11 @@ public class AiObservabilityService {
     
     /**
      * 异步保存追踪记录
+     * 
+     * <p>使用CompletableFuture异步执行保存操作，避免阻塞主流程。
+     * 即使保存失败也不会影响AI调用的正常响应。</p>
+     * 
+     * @param trace 追踪记录实体
      */
     public void saveTraceAsync(AiTrace trace) {
         CompletableFuture.runAsync(() -> {
@@ -63,7 +75,17 @@ public class AiObservabilityService {
     }
     
     /**
-     * 计算预估费用（从配置文件读取价格）
+     * 计算预估费用
+     * 
+     * <p>根据模型名称从配置文件获取价格，计算本次调用的预估费用。
+     * 如果模型未配置价格，则使用默认价格。</p>
+     * 
+     * <p>计算公式：费用 = (输入Token × 输入价格 + 输出Token × 输出价格) / 1000</p>
+     * 
+     * @param modelName 模型名称
+     * @param promptTokens 输入Token数
+     * @param completionTokens 输出Token数
+     * @return 预估费用（单位：元）
      */
     public BigDecimal calculateCost(String modelName, int promptTokens, int completionTokens) {
         BigDecimal inputPrice = DEFAULT_INPUT_PRICE;
@@ -76,16 +98,30 @@ public class AiObservabilityService {
             outputPrice = modelPrice.getOutput();
         }
         
-        BigDecimal inputCost = inputPrice.multiply(new BigDecimal(promptTokens)).divide(new BigDecimal(1000), 6, RoundingMode.HALF_UP);
-        BigDecimal outputCost = outputPrice.multiply(new BigDecimal(completionTokens)).divide(new BigDecimal(1000), 6, RoundingMode.HALF_UP);
+        BigDecimal inputCost = inputPrice.multiply(new BigDecimal(promptTokens))
+                .divide(new BigDecimal(1000), 6, RoundingMode.HALF_UP);
+        BigDecimal outputCost = outputPrice.multiply(new BigDecimal(completionTokens))
+                .divide(new BigDecimal(1000), 6, RoundingMode.HALF_UP);
         
         return inputCost.add(outputCost);
     }
     
     /**
-     * 获取会话的Token统计
+     * 获取指定会话的Token统计信息
+     * 
+     * <p>汇总指定会话下所有AI调用的统计数据，包括：</p>
+     * <ul>
+     *   <li>调用次数</li>
+     *   <li>Token消耗（输入/输出/总计）</li>
+     *   <li>延迟统计（总延迟/平均延迟）</li>
+     *   <li>成功率</li>
+     *   <li>累计费用</li>
+     * </ul>
+     * 
+     * @param conversationId 会话ID
+     * @return 会话统计信息
      */
-    public TokenStatistics getConversationStats(String conversationId) {
+    public TokenStatisticsVo getConversationStats(String conversationId) {
         LambdaQueryWrapper<AiTrace> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AiTrace::getConversationId, conversationId)
                .eq(AiTrace::getStatus, 1);
@@ -117,7 +153,7 @@ public class AiObservabilityService {
             }
         }
         
-        return TokenStatistics.builder()
+        return TokenStatisticsVo.builder()
                 .conversationId(conversationId)
                 .totalCalls(totalCalls)
                 .totalPromptTokens(totalPromptTokens)
@@ -131,9 +167,13 @@ public class AiObservabilityService {
     }
     
     /**
-     * 获取全局统计（今日）
+     * 获取今日全局统计
+     * 
+     * <p>统计今日（0点至今）所有AI调用的汇总数据，用于监控大盘展示。</p>
+     * 
+     * @return 今日统计信息
      */
-    public TokenStatistics getTodayStats() {
+    public TokenStatisticsVo getTodayStats() {
         LambdaQueryWrapper<AiTrace> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AiTrace::getStatus, 1)
                .ge(AiTrace::getCreateTime, getTodayStart());
@@ -157,7 +197,7 @@ public class AiObservabilityService {
             }
         }
         
-        return TokenStatistics.builder()
+        return TokenStatisticsVo.builder()
                 .totalCalls(totalCalls)
                 .totalPromptTokens(totalPromptTokens)
                 .totalCompletionTokens(totalCompletionTokens)
@@ -167,7 +207,12 @@ public class AiObservabilityService {
     }
     
     /**
-     * 获取追踪详情
+     * 获取指定会话的追踪详情列表
+     * 
+     * <p>查询指定会话下的所有AI调用记录，按时间倒序排列。</p>
+     * 
+     * @param conversationId 会话ID
+     * @return 追踪记录列表
      */
     public List<AiTrace> getTracesByConversation(String conversationId) {
         LambdaQueryWrapper<AiTrace> wrapper = new LambdaQueryWrapper<>();
@@ -179,6 +224,11 @@ public class AiObservabilityService {
     
     /**
      * 获取最近的追踪记录列表
+     * 
+     * <p>查询最近N条AI调用记录，用于监控页面展示实时调用情况。</p>
+     * 
+     * @param limit 返回记录数量上限
+     * @return 追踪记录列表（按时间倒序）
      */
     public List<AiTrace> getRecentTraces(int limit) {
         LambdaQueryWrapper<AiTrace> wrapper = new LambdaQueryWrapper<>();
@@ -189,9 +239,14 @@ public class AiObservabilityService {
     }
     
     /**
-     * 按请求类型统计
+     * 按请求类型统计今日数据
+     * 
+     * <p>将今日的AI调用按requestType（如：贴心助手、运维助手、规则助手）分组统计，
+     * 便于了解各业务场景的资源消耗情况。</p>
+     * 
+     * @return 按类型分组的统计列表
      */
-    public List<TypeStatistics> getStatsByRequestType() {
+    public List<TypeStatisticsVo> getStatsByRequestType() {
         LambdaQueryWrapper<AiTrace> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AiTrace::getStatus, 1)
                .ge(AiTrace::getCreateTime, getTodayStart());
@@ -213,7 +268,7 @@ public class AiObservabilityService {
                     BigDecimal cost = typeTraces.stream()
                             .map(t -> t.getEstimatedCost() != null ? t.getEstimatedCost() : BigDecimal.ZERO)
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
-                    return new TypeStatistics(type, calls, tokens, cost);
+                    return new TypeStatisticsVo(type, calls, tokens, cost);
                 })
                 .toList();
     }

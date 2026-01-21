@@ -3,9 +3,9 @@ package org.javaup.ai.cotroller;
 import jakarta.annotation.Resource;
 import org.javaup.ai.common.ApiResponse;
 import org.javaup.ai.entity.AiTrace;
-import org.javaup.ai.observability.AiObservabilityService;
-import org.javaup.ai.observability.TokenStatistics;
-import org.javaup.ai.observability.TypeStatistics;
+import org.javaup.ai.service.AiObservabilityService;
+import org.javaup.ai.vo.TokenStatisticsVo;
+import org.javaup.ai.vo.TypeStatisticsVo;
 import org.javaup.ai.structured.IntentRecognition;
 import org.javaup.ai.structured.ProgramRecommendation;
 import org.javaup.ai.structured.StructuredOutputService;
@@ -42,8 +42,8 @@ public class AiEnhanceController {
      * 获取今日AI调用统计
      */
     @GetMapping("/observability/today")
-    public ApiResponse<TokenStatistics> getTodayStats() {
-        TokenStatistics stats = observabilityService.getTodayStats();
+    public ApiResponse<TokenStatisticsVo> getTodayStats() {
+        TokenStatisticsVo stats = observabilityService.getTodayStats();
         return ApiResponse.ok(stats);
     }
     
@@ -51,8 +51,8 @@ public class AiEnhanceController {
      * 获取指定会话的统计信息
      */
     @GetMapping("/observability/conversation")
-    public ApiResponse<TokenStatistics> getConversationStats(@RequestParam("conversationId") String conversationId) {
-        TokenStatistics stats = observabilityService.getConversationStats(conversationId);
+    public ApiResponse<TokenStatisticsVo> getConversationStats(@RequestParam("conversationId") String conversationId) {
+        TokenStatisticsVo stats = observabilityService.getConversationStats(conversationId);
         return ApiResponse.ok(stats);
     }
     
@@ -69,8 +69,8 @@ public class AiEnhanceController {
      * 按请求类型统计（今日）
      */
     @GetMapping("/observability/stats/type")
-    public ApiResponse<List<TypeStatistics>> getStatsByType() {
-        List<TypeStatistics> stats = observabilityService.getStatsByRequestType();
+    public ApiResponse<List<TypeStatisticsVo>> getStatsByType() {
+        List<TypeStatisticsVo> stats = observabilityService.getStatsByRequestType();
         return ApiResponse.ok(stats);
     }
     
