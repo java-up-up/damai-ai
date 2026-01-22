@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * @program: 大麦-ai智能服务项目。 添加 阿星不是程序员 微信，添加时备注 ai 来获取项目的完整资料 
- * @description: AI增强功能演示Controller - 展示Observability、Structured Output
+ * @description: AI的观测功能
  * @author: 阿星不是程序员
  **/
 @RestController
@@ -36,38 +36,24 @@ public class AiEnhanceController {
     @Resource
     private ChatClient chatClient;
     
-    // ==================== Observability 可观测性功能演示 ====================
-    
-    /**
-     * 获取今日AI调用统计
-     */
     @GetMapping("/observability/today")
     public ApiResponse<TokenStatisticsVo> getTodayStats() {
         TokenStatisticsVo stats = observabilityService.getTodayStats();
         return ApiResponse.ok(stats);
     }
     
-    /**
-     * 获取指定会话的统计信息
-     */
     @GetMapping("/observability/conversation")
     public ApiResponse<TokenStatisticsVo> getConversationStats(@RequestParam("conversationId") String conversationId) {
         TokenStatisticsVo stats = observabilityService.getConversationStats(conversationId);
         return ApiResponse.ok(stats);
     }
     
-    /**
-     * 获取最近的追踪记录列表
-     */
     @GetMapping("/observability/traces")
     public ApiResponse<List<AiTrace>> getRecentTraces(@RequestParam(value = "limit", defaultValue = "50") int limit) {
         List<AiTrace> traces = observabilityService.getRecentTraces(limit);
         return ApiResponse.ok(traces);
     }
     
-    /**
-     * 按请求类型统计（今日）
-     */
     @GetMapping("/observability/stats/type")
     public ApiResponse<List<TypeStatisticsVo>> getStatsByType() {
         List<TypeStatisticsVo> stats = observabilityService.getStatsByRequestType();

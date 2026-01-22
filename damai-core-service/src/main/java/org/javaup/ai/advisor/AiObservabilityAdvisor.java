@@ -25,24 +25,14 @@ import java.util.Map;
 @Slf4j
 public class AiObservabilityAdvisor implements BaseChatMemoryAdvisor {
     
-    /** Advisor执行顺序 */
     private final int order;
-    
-    /** 可观测性服务，用于保存追踪记录和计算费用 */
+
     private final AiObservabilityService observabilityService;
-    
-    /** 模型名称，用于费用计算和记录 */
+
     private final String modelName;
-    
-    /** 请求类型，用于区分不同业务场景（如：贴心助手、运维助手、规则助手） */
+
     private final String requestType;
     
-    /**
-     * Context键名常量 - 用于在before和after之间通过context传递数据
-     * 
-     * <p>重要：由于响应式编程的特性，before和after可能在不同线程执行（如boundedElastic-1和boundedElastic-2），
-     * 所以不能使用ThreadLocal，必须通过request/response的context传递数据。</p>
-     */
     private static final String CTX_START_TIME = "observability_start_time";
     private static final String CTX_TRACE_ID = "observability_trace_id";
     private static final String CTX_USER_INPUT = "observability_user_input";
@@ -55,30 +45,15 @@ public class AiObservabilityAdvisor implements BaseChatMemoryAdvisor {
         this.requestType = requestType;
     }
     
-    /**
-     * 请求前置处理 - 记录调用开始信息
-     * 
-     * <p>在AI调用之前执行，主要完成：</p>
-     * <ol>
-     *   <li>生成唯一的traceId用于追踪</li>
-     *   <li>记录请求开始时间（用于计算延迟）</li>
-     *   <li>保存用户输入内容（截断到500字符）</li>
-     *   <li>将以上信息存入context，传递给after阶段</li>
-     * </ol>
-     * 
-     * @param request AI调用请求
-     * @param chain Advisor链
-     * @return 增强后的请求（包含追踪上下文）
-     */
+
     @Override
     public ChatClientRequest before(ChatClientRequest request, AdvisorChain chain) {
-        // 记录用户输入
+
         String userMessage = request.prompt().getUserMessage().getText();
         String traceId = observabilityService.generateTraceId();
         
         log.debug("AI调用开始 - traceId: {}, input: {}", traceId, userMessage);
         
-        // 通过context传递数据（跨线程安全）
         Map<String, Object> newContext = new HashMap<>(request.context());
         newContext.put(CTX_START_TIME, System.currentTimeMillis());
         newContext.put(CTX_TRACE_ID, traceId);
@@ -90,22 +65,6 @@ public class AiObservabilityAdvisor implements BaseChatMemoryAdvisor {
                 .build();
     }
     
-    /**
-     * 响应后置处理 - 采集调用指标并保存
-     * 
-     * <p>在AI调用完成后执行，主要完成：</p>
-     * <ol>
-     *   <li>从context获取before阶段存入的数据</li>
-     *   <li>计算响应延迟（当前时间 - 开始时间）</li>
-     *   <li>从ChatResponse中提取Token使用信息</li>
-     *   <li>根据模型价格计算预估费用</li>
-     *   <li>构建AiTrace实体并异步保存到数据库</li>
-     * </ol>
-     * 
-     * @param response AI调用响应
-     * @param chain Advisor链
-     * @return 原始响应（不做修改）
-     */
     @Override
     public ChatClientResponse after(ChatClientResponse response, AdvisorChain chain) {
         // 从context获取数据
@@ -126,7 +85,6 @@ public class AiObservabilityAdvisor implements BaseChatMemoryAdvisor {
         try {
             ChatResponse chatResponse = response.chatResponse();
             
-            // 构建追踪记录
             AiTrace trace = new AiTrace();
             trace.setTraceId(traceId);
             trace.setConversationId(conversationId);
@@ -136,7 +94,6 @@ public class AiObservabilityAdvisor implements BaseChatMemoryAdvisor {
             trace.setUserInput(userInput);
             trace.setSuccess(true);
             
-            // 提取Token使用信息
             if (chatResponse != null && chatResponse.getMetadata() != null && 
                     chatResponse.getMetadata().getUsage() != null) {
                 Usage usage = chatResponse.getMetadata().getUsage();
@@ -147,7 +104,6 @@ public class AiObservabilityAdvisor implements BaseChatMemoryAdvisor {
                 trace.setCompletionTokens(completionTokens);
                 trace.setTotalTokens(promptTokens + completionTokens);
                 
-                // 计算费用
                 BigDecimal cost = observabilityService.calculateCost(modelName, promptTokens, completionTokens);
                 trace.setEstimatedCost(cost);
                 
@@ -156,11 +112,9 @@ public class AiObservabilityAdvisor implements BaseChatMemoryAdvisor {
                         promptTokens + completionTokens, cost);
             }
             
-            // 记录AI输出（流式场景下getText()为空，这是正常的）
             if (chatResponse != null && chatResponse.getResult() != null && 
                     chatResponse.getResult().getOutput() != null) {
                 String aiOutput = chatResponse.getResult().getOutput().getText();
-                // 流式输出时getText()为空，标记为流式响应
                 if (aiOutput == null || aiOutput.isEmpty()) {
                     trace.setAiOutput("[流式输出]");
                 } else {
@@ -168,7 +122,6 @@ public class AiObservabilityAdvisor implements BaseChatMemoryAdvisor {
                 }
             }
             
-            // 异步保存
             observabilityService.saveTraceAsync(trace);
             
         } catch (Exception e) {
