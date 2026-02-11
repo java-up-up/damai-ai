@@ -108,12 +108,6 @@ public class DaMaiRagAiAutoConfiguration {
                         ChatTypeTitleAdvisor.builder(chatTypeHistoryService).type(ChatType.MARKDOWN.getCode())
                                 .chatClient(titleChatClient).chatMemory(chatMemory).order(CHAT_TITLE_ADVISOR_ORDER).build(),
                         MessageChatMemoryAdvisor.builder(chatMemory).order(MESSAGE_CHAT_MEMORY_ADVISOR_ORDER).build(),
-                        QuestionAnswerAdvisor.builder(vectorStore)
-                                .searchRequest(SearchRequest.builder()
-                                        .similarityThreshold(0.25)
-                                        .topK(12)                   
-                                        .build())
-                                .build(),
                         // AI增强: Observability可观测性
                         AiObservabilityAdvisor.builder(observabilityService)
                                 .order(OBSERVABILITY_ADVISOR_ORDER)
