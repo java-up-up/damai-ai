@@ -38,3 +38,6 @@ build/
 
 ### VS Code ###
 .vscode/
+.qoder/
+.codex/
+AGENTS.md
