@@ -47,12 +47,12 @@ public class DaMaiRagAiAutoConfiguration {
         return new MarkdownLoader(resourcePatternResolver);
     }
     
-    @Bean
+    @Bean("markdownChatClient")
     @ConditionalOnProperty(name = RAG_VERSION, havingValue = "1",matchIfMissing = true)
-    public ChatClient markdownChatClient(OpenAiChatModel model, ChatMemory chatMemory, VectorStore vectorStore,
-                                         MarkdownLoader markdownLoader, ChatTypeHistoryService chatTypeHistoryService,
-                                         @Qualifier("titleChatClient")ChatClient titleChatClient,
-                                         AiObservabilityService observabilityService) {
+    public ChatClient markdownChatClientV1(OpenAiChatModel model, ChatMemory chatMemory, VectorStore vectorStore,
+                                           MarkdownLoader markdownLoader, ChatTypeHistoryService chatTypeHistoryService,
+                                           @Qualifier("titleChatClient")ChatClient titleChatClient,
+                                           AiObservabilityService observabilityService) {
         List<Document> documentList = markdownLoader.loadMarkdowns();
         vectorStore.add(documentList);
         
@@ -82,13 +82,13 @@ public class DaMaiRagAiAutoConfiguration {
                 .build();
     }
 
-    @Bean
+    @Bean("markdownChatClient")
     @ConditionalOnProperty(name = RAG_VERSION, havingValue = "2")
-    public ChatClient markdownChatClient(OpenAiChatModel model, ChatMemory chatMemory, VectorStore vectorStore,
-                                         MarkdownLoader markdownLoader, ChatTypeHistoryService chatTypeHistoryService, 
-                                         @Qualifier("titleChatClient")ChatClient titleChatClient,
-                                         HybridSearchService hybridSearchService,
-                                         AiObservabilityService observabilityService) {
+    public ChatClient markdownChatClientV2(OpenAiChatModel model, ChatMemory chatMemory, VectorStore vectorStore,
+                                           MarkdownLoader markdownLoader, ChatTypeHistoryService chatTypeHistoryService,
+                                           @Qualifier("titleChatClient")ChatClient titleChatClient,
+                                           HybridSearchService hybridSearchService,
+                                           AiObservabilityService observabilityService) {
         List<Document> documentList = markdownLoader.loadMarkdowns();
         vectorStore.add(documentList);
         
